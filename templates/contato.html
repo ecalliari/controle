@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+<head>
+    <title>Contato</title>
+</head>
+<body class="contato_body">
+    <h1 class="contato_titulo">Entre em contato</h1>
+    <p class="contato_titulo_texto">Preencha o formulário abaixo para entrar em contato conosco.</p>
+    
+    <form class="contato_form" action="/enviarContato" method="POST">
+        <label class="contato_label" for="nome">Nome:</label>
+        <input class="contato_input" type="text" id="nome" name="nome" required><br><br>
+        
+        <label class="contato_label" for="email">Email:</label>
+        <input class="contato_input" type="email" id="email" name="email" required><br><br>
+        
+        <label class="contato_label" for="mensagem">Mensagem:</label><br>
+        <textarea class="contato_texto" id="mensagem" name="mensagem" rows="5" cols="30" required></textarea><br><br>
+        
+        <input class="contato_input" type="submit" value="Enviar">
+    </form>
+
+    <div class="border-whatsapp">
+        <a class="whatsapp-button"  href="/whatsapp"><img src="static/whatsapp.png" alt="Logo">Entre em contato agora mesmo!</a>
+    </div>
+    
+</body>
+</html>

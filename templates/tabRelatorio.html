@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Relatório de Vendas</title>
+    <script>
+        function addEvent() {
+            const value = document.getElementById('event-value').value;
+            const description = document.getElementById('event-description').value;
+            const saleDate = document.getElementById('event-sale-date').value;
+            if (value && description && saleDate) {
+                const table = document.getElementById('vendas-table');
+                const newRow = table.insertRow();
+                const valueCell = newRow.insertCell(0);
+                const descriptionCell = newRow.insertCell(1);
+                const saleDateCell = newRow.insertCell(2);
+                const deleteCell = newRow.insertCell(3);
+                valueCell.innerHTML = value;
+                descriptionCell.innerHTML = description;
+                saleDateCell.innerHTML = saleDate;
+
+                // Adiciona o botão de exclusão
+                const deleteButton = document.createElement('button');
+                deleteButton.innerText = 'Excluir';
+                deleteButton.onclick = function () {
+                    deleteEvent(value, description, saleDate); // Passa as informações para a função delete
+                    table.deleteRow(newRow.rowIndex); // Remove a linha da tabela
+                };
+                deleteCell.appendChild(deleteButton);
+
+                document.getElementById('event-value').value = '';
+                document.getElementById('event-description').value = '';
+                document.getElementById('event-sale-date').value = '';
+                sendEventToServer(value, description, saleDate);
+            } else {
+                alert('Por favor, preencha todos os campos.');
+            }
+        }
+
+        function deleteEvent(value, description, saleDate) {
+            // Implementar a lógica para deletar o evento do servidor
+        }
+
+        function sendEventToServer(value, description, saleDate) {
+            // Implementar a lógica para enviar o evento para o servidor
+        }
+    </script>
+</head>
+<body>
+    <input type="text" id="event-value" placeholder="Valor">
+    <input type="text" id="event-description" placeholder="Descrição">
+    <input type="date" id="event-sale-date" placeholder="Data Venda">
+    <button onclick="addEvent()">Adicionar Evento</button>
+    
+    <table id="vendas-table" border="1">
+        <thead>
+            <tr>
+                <th>Valor</th>
+                <th>Descrição</th>
+                <th>Data Venda</th>
+                <th>Ações</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Linhas de eventos serão adicionadas aqui -->
+        </tbody>
+    </table>
+</body>
+</html>

@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Relatório</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<style>
+    table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 20px 0;
+    font-size: 18px;
+    text-align: left;
+}
+
+table thead tr {
+    background-color: #4CAF50;
+    color: white;
+    text-align: left;
+}
+
+table th, table td {
+    padding: 12px 15px;
+}
+
+table tbody tr {
+    border-bottom: 1px solid #dddddd;
+}
+
+table tbody tr:nth-of-type(even) {
+    background-color: #f3f3f3;
+}
+
+table tbody tr:last-of-type {
+    border-bottom: 2px solid #4CAF50;
+}
+
+table tbody tr:hover {
+    background-color: #f1f1f1;
+}
+</style>
+<body>
+    <h1>Relatório</h1>
+    <form action="/visualizar" method="post">
+        <label for="formas_pagamento">Formas de Pagamento:</label>
+        <select id="formas_pagamento" name="formas_pagamento">
+            {% for forma in formas_pagamento %}
+                <option value="{{ forma['ID'] }}">{{ forma['Forma de Pagamento'] }}</option>
+            {% endfor %}
+        </select>
+
+        <label for="empresas">Empresas:</label>
+        <select id="empresas" name="empresas">
+            {% for empresa in empresas %}
+                <option value="{{ empresa['ID'] }}">{{ empresa['Empresa'] }}</option>
+            {% endfor %}
+        </select>
+
+        <label for="usuarios">Usuários:</label>
+        <select id="usuarios" name="usuarios">
+            {% for usuario in usuarios %}
+                <option value="{{ usuario['ID'] }}">{{ usuario['Usuário'] }}</option>
+            {% endfor %}
+        </select>
+        <label for="data_inicial">Data Inicial:</label>
+        <input type="date" id="data_inicial" name="data_inicial">
+
+        <label for="data_final">Data Final:</label>
+        <input type="date" id="data_final" name="data_final">
+
+        <button type="submit">Visualizar</button>
+    </form>
+    
+    <table id="vendas-table" border="1">
+        <thead>
+            <tr>
+                <th>Valor</th>
+                <th>Descrição</th>
+                <th>Data Venda</th>
+                <th>Ações</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Linhas de eventos serão adicionadas aqui -->
+        </tbody>
+    </table>
+
+    <div id="total-container">
+        <h2>Total: <span id="total-value">0</span></h2>
+    </div>
+    
+    <script>
+        function sendEventToServer() {
+            const formaPg = document.getElementById('formas_pagamento').value;
+            const company = document.getElementById('empresas').value;
+            const user = document.getElementById('usuarios').value;
+            const dataInicial = document.getElementById('data_inicial').value;
+            const dataFinal = document.getElementById('data_final').value;
+
+            fetch('/visualizar', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCookie('csrftoken')
+                },
+                body: JSON.stringify({ formaPg: formaPg, company: company, user: user, dataInicial: dataInicial, dataFinal: dataFinal })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    console.log('Evento adicionado com sucesso');
+                    updateTable(data.eventos);
+                    updateTotal(data.total);
+                } else {
+                    console.error('Erro ao adicionar evento:', data.error);
+                }
+            })
+            .catch(error => console.error('Erro:', error));
+        }
+
+        function updateTable(eventos) {
+            const tableBody = document.querySelector('#vendas-table tbody');
+            tableBody.innerHTML = ''; // Limpa a tabela antes de adicionar novas linhas
+
+            eventos.forEach(evento => {
+                const newRow = document.createElement('tr');
+
+                evento.forEach(cellData => {
+                    const cell = document.createElement('td');
+                    cell.textContent = cellData;
+                    newRow.appendChild(cell);
+                });
+
+                const acoesCell = document.createElement('td');
+                acoesCell.textContent = 'Ações'; // Adicione ações conforme necessário
+                newRow.appendChild(acoesCell);
+
+                tableBody.appendChild(newRow);
+            });
+        }
+
+        function updateTotal(total) {
+            document.getElementById('total-value').textContent = total;
+        }
+
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+
+        document.querySelector('form').addEventListener('submit', function(event) {
+            event.preventDefault();
+            sendEventToServer();
+        });
+    </script>
+    
+</body>
+</html>

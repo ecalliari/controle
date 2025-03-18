@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agenda</title>
+    <style>
+        table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 20px 0;
+        font-size: 18px;
+        text-align: left;
+    }
+    
+    table thead tr {
+        background-color: #4CAF50;
+        color: white;
+        text-align: left;
+    }
+    
+    table th, table td {
+        padding: 12px 15px;
+    }
+    
+    table tbody tr {
+        border-bottom: 1px solid #dddddd;
+    }
+    
+    table tbody tr:nth-of-type(even) {
+        background-color: #f3f3f3;
+    }
+    
+    table tbody tr:last-of-type {
+        border-bottom: 2px solid #4CAF50;
+    }
+    
+    table tbody tr:hover {
+        background-color: #f1f1f1;
+    }
+    </style>
+</head>
+<body>
+    <h1>Lançamentos de Vendas</h1>
+    <div class="form-container">
+        <input type="text" id="event-title" name="event-text" placeholder="Observação do evento">
+        <input type="date" id="event-date" name="event-date">
+        <select id="event-company" name="event-company">
+            <option value="">Selecione uma Empresa</option>
+            {% for company in empresas %}
+                <option value="{{ company }}">{{ company }}</option>
+            {% endfor %}
+        </select>
+        <select id="event-pagamento" name="event-pagamento">
+            <option value="">Forma de Pagamento</option>
+            {% for pag in formasPagamento %}
+                <option value="{{ pag }}">{{ pag }}</option>
+            {% endfor %}
+        </select>
+
+        <input type="number" id="event-value" name="event-value" placeholder="Valor Vendido">
+        
+        <button onclick="addEvent()">Adicionar Evento</button>
+    </div>
+    <table id="vendas-table">
+        <tr>
+            <th>Data</th>
+            <th>Observação</th>
+            <th>Empresa</th>
+            <th>Valor</th>
+            <th>Forma de Pagamento</th>
+            <th>Ação</th>
+        </tr>
+    </table>
+
+
+
+    <script>
+    
+    function deleteEvent(date, title, company, value, pag) {
+        fetch('/deleteSale', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCookie('csrftoken')
+        },
+        body: JSON.stringify({ title: title, date: date, company: company, value: value, pag: pag })
+        })
+        .then(response => response.json())
+        .then(data => {
+        if (data.success) {
+            console.log('Evento excluído com sucesso');
+        } else {
+            console.error('Erro ao excluir evento');
+        }
+        })
+        .catch(error => console.error('Erro:', error));
+    }
+
+    function sendEventToServer(title, date, company, value, pag) {
+        fetch('/cadastroVendas', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCookie('csrftoken')
+        },
+        body: JSON.stringify({ title: title, date: date, company: company, value: value, pag: pag })
+        })
+        .then(response => response.json())
+        .then(data => {
+        if (data.success) {
+            console.log('Evento adicionado com sucesso');
+        } else {
+            console.error('Erro ao adicionar evento');
+        }
+        })
+        .catch(error => console.error('Erro:', error));
+    }
+
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+            break;
+            }
+        }
+        }
+        return cookieValue;
+    }
+
+    function addEvent() {
+        const title = document.getElementById('event-title').value;
+        const date = document.getElementById('event-date').value;
+        const company = document.getElementById('event-company').value;
+        const value = document.getElementById('event-value').value;
+        const pag = document.getElementById('event-pagamento').value;
+        if (title && date && company && value && pag) {
+            const table = document.getElementById('vendas-table');
+            const newRow = table.insertRow();
+            const dateCell = newRow.insertCell(0);
+            const titleCell = newRow.insertCell(1);
+            const companyCell = newRow.insertCell(2);
+            const valueCell = newRow.insertCell(3);
+            const pagCell = newRow.insertCell(4);
+            const deleteCell = newRow.insertCell(5);
+            dateCell.innerHTML = date;
+            titleCell.innerHTML = title;
+            companyCell.innerHTML = company;
+            valueCell.innerHTML = value;
+            pagCell.innerHTML = pag;
+
+            // Adiciona o botão de exclusão
+            const deleteButton = document.createElement('button');
+            deleteButton.innerText = 'Excluir';
+            deleteButton.onclick = function () {
+            deleteEvent(date, title, company, value, pag); // Passa as informações para a função delete
+            table.deleteRow(newRow.rowIndex); // Remove a linha da tabela
+            };
+            deleteCell.appendChild(deleteButton);
+
+            document.getElementById('event-title').value = '';
+            document.getElementById('event-date').value = '';
+            document.getElementById('event-company').value = '';
+            document.getElementById('event-value').value = '';
+            document.getElementById('event-pagamento').value = '';
+            sendEventToServer(title, date, company, value, pag);
+        } else {
+            alert('Por favor, preencha todos os campos.');
+        }
+        }
+    
+    </script>
+</body>
+</html>

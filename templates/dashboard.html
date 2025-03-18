@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <title>App Atlas</title>
+</head>
+<body>
+    <div class="header">
+        <a href="/dashboard"><img src="static/logo for ManuTripBrasil.png" alt="Logotipo" class="logo"></a>
+        <div class="user-info">
+            <p><strong>Usuário:</strong> {{ username }}</p>
+            <p><strong>Start login:</strong> {{ last_login }}</p>
+            <p><a href="{{ url_for('logout') }}">Logout</a></p>
+        </div>
+    </div>
+        <div class="nav">
+            <a href="#" id="cadastroVendas">Vendas</a>
+            <a href="#" id="contatoLink">Contato</a>
+            <a href="#" id="downloadLink">Download</a>
+            <a href="#" id="relatorio">Relatório</a>
+        </div>
+    <div class="content">
+        <!-- Conteúdo do dashboard -->
+        <div id="content"></div>
+
+        <!-- Adicione mais informações de login conforme necessário -->
+    </div>
+
+
+    <div>
+        
+    </div>
+
+
+    <div>
+    {% include 'footer.html' %}
+    </div>
+
+    <script>
+        $(document).ready(function(){
+            $('#downloadLink').click(function(e){
+                e.preventDefault();
+                $.ajax({
+                    url: "{{ url_for('download') }}",
+                    type: 'GET',
+                    success: function(response){
+                        $('#content').html(response);
+                    }
+                });
+                
+            });
+            $('#contatoLink').click(function(e){
+                e.preventDefault();
+                $.ajax({
+                    url: "{{ url_for('contato') }}",
+                    type: 'GET',
+                    success: function(response){
+                        $('#content').html(response);
+                    }
+                });
+                
+            });
+            $('#cadastroVendas').click(function(e){
+                e.preventDefault();
+                $.ajax({
+                    url: "{{ url_for('cadastroVendas') }}",
+                    type: 'GET',
+                    success: function(response){
+                        $('#content').html(response);
+                    }
+                });
+                
+            });
+            $('#relatorio').click(function(e){
+                e.preventDefault();
+                $.ajax({
+                    url: "{{ url_for('relatorio') }}",
+                    type: 'GET',
+                    success: function(response){
+                        $('#content').html(response);
+                    }
+                });
+                
+            });
+        });
+    </script>
+</body>
+</html>
